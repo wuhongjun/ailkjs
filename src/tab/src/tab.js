@@ -126,7 +126,7 @@ define(function (require, exports, module) {
         $(document).on('click.tab.data-api', '[data-toggle="tab"], [data-toggle="pill"]', function (e) {
             var $this = $(this)
                 , href = $this.attr('href')
-                , option = $target.data('tab') ? 'show' : $.extend({ remote: !/#/.test(href) && href }, $target.data(), $this.data())
+                , option = $this.data('tab') ? 'show' : $.extend({ remote: !/#/.test(href) && href }, $this.data())
             e.preventDefault()
             $(this).tab( option )
         })
