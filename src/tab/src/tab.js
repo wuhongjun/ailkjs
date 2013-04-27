@@ -1,122 +1,136 @@
-define(function(require, exports, module) {
+define(function (require, exports, module) {
 
-  var $ = window.$ || require('gallery/jquery/1.8.3/jquery')
+    var $ = window.$ || require('gallery/jquery/1.8.3/jquery')
 
-  var Tab = function (element) {
-    this.element = $(element)
-  }
+    var Tab = function (element, options) {
+        this.options = options
+        this.element = $(element)
+        this.options.remote && this.element.attr('data-target').load(this.options.remote)
+    }
 
-  Tab.prototype = {
+    Tab.prototype = {
 
-    constructor: Tab
+        constructor: Tab,
+        show: function () {
+            var $this = this.element
+                , $ul = $this.closest('ul:not(.ailk-dropdown-menu)')
+                , $target
+                , selector
+                , previous
+                , e
 
-  , show: function () {
-      var $this = this.element
-        , $ul = $this.closest('ul:not(.ailk-dropdown-menu)')
-        , selector = $this.attr('data-target')
-        , previous
-        , $target
-        , e
+            if ($this.parent('li').hasClass('ailk-active')) return
 
-      if (!selector) {
-        selector = $this.attr('href')
-        selector = selector && selector.replace(/.*(?=#[^\s]*$)/, '') //strip for ie7
-      }
+            previous = $ul.find('.ailk-active:last a')[0]
 
-      if ( $this.parent('li').hasClass('ailk-active') ) return
+            e = $.Event('show', {
+                relatedTarget: previous
+            })
 
-      previous = $ul.find('.ailk-active:last a')[0]
+            $this.trigger(e)
 
-      e = $.Event('show', {
-        relatedTarget: previous
-      })
+            if (e.isDefaultPrevented()) return
 
-      $this.trigger(e)
+            selector = $this.attr('data-target');
+            if(!selector){
+                selector = $this.attr('href')
+                selector && selector.replace(/.*(?=#[^\s]*$)/, '') //strip for ie7
+            }
+            $target = $(selector)
 
-      if (e.isDefaultPrevented()) return
+            this.activate($this.parent('li'), $ul)
+            this.activate($target, $target.parent(), function () {
+                $this.trigger({
+                    type: 'shown',
+                    relatedTarget: previous
+                })
+            })
+        },
+        activate: function (element, container, callback) {
+            var $active = container.find('> .ailk-active')
+                , transition = callback
+                    && $.support.transition
+                    && $active.hasClass('fade')
 
-      $target = $(selector)
+            function next() {
+                $active
+                    .removeClass('ailk-active')
+                    .find('> .ailk-dropdown-menu > .ailk-active')
+                    .removeClass('ailk-active')
 
-      this.activate($this.parent('li'), $ul)
-      this.activate($target, $target.parent(), function () {
-        $this.trigger({
-          type: 'shown'
-        , relatedTarget: previous
+                element.addClass('active')
+
+                if (transition) {
+                    element[0].offsetWidth // reflow for transition
+                    element.addClass('ailk-open')
+                } else {
+                    element.removeClass('fade')
+                }
+
+                if (element.parent('.ailk-dropdown-menu')) {
+                    element.closest('li.ailk-dropdown').addClass('ailk-active')
+                }
+
+                callback && callback()
+            }
+
+            transition ?
+                $active.one($.support.transition.end, next) :
+                next()
+
+            $active.removeClass('ailk-open')
+        },
+        reload: function( remote ){
+            var $this = this.element
+            $this.trigger($.Event('reloading'))
+            this.target.empty().load( remote || this.options.remote, function(){
+                $this.trigger($.Event('loaded'))
+            });
+        }
+    }
+
+
+    /* TAB PLUGIN DEFINITION
+     * ===================== */
+
+    var old = $.fn.tab
+
+    $.fn.tab = function (option) {
+        return this.each(function () {
+            var $this = $(this)
+                , data = $this.data('tab')
+                , options = $.extend({}, $.fn.tab.defaults, $this.data(), typeof option == 'object' && option)
+            if (!data) $this.data('tab', (data = new Tab(this, options)))
+            if (typeof option == 'string') data[option]()
         })
-      })
     }
 
-  , activate: function ( element, container, callback) {
-      var $active = container.find('> .ailk-active')
-        , transition = callback
-            && $.support.transition
-            && $active.hasClass('fade')
-
-      function next() {
-        $active
-          .removeClass('ailk-active')
-          .find('> .ailk-dropdown-menu > .ailk-active')
-          .removeClass('ailk-active')
-
-        element.addClass('active')
-
-        if (transition) {
-          element[0].offsetWidth // reflow for transition
-          element.addClass('ailk-open')
-        } else {
-          element.removeClass('fade')
-        }
-
-        if ( element.parent('.ailk-dropdown-menu') ) {
-          element.closest('li.ailk-dropdown').addClass('ailk-active')
-        }
-
-        callback && callback()
-      }
-
-      transition ?
-        $active.one($.support.transition.end, next) :
-        next()
-
-      $active.removeClass('ailk-open')
+    $.fn.tab.defauts = {
+        remote: false
     }
-  }
+    $.fn.tab.Constructor = Tab
 
 
- /* TAB PLUGIN DEFINITION
-  * ===================== */
+    /* TAB NO CONFLICT
+     * =============== */
 
-  var old = $.fn.tab
-
-  $.fn.tab = function ( option ) {
-    return this.each(function () {
-      var $this = $(this)
-        , data = $this.data('tab')
-      if (!data) $this.data('tab', (data = new Tab(this)))
-      if (typeof option == 'string') data[option]()
-    })
-  }
-
-  $.fn.tab.Constructor = Tab
+    $.fn.tab.noConflict = function () {
+        $.fn.tab = old
+        return this
+    }
 
 
- /* TAB NO CONFLICT
-  * =============== */
+    /* TAB DATA-API
+     * ============ */
+    Tab.autoinit = function () {
+        $(document).on('click.tab.data-api', '[data-toggle="tab"], [data-toggle="pill"]', function (e) {
+            var $this = $(this)
+                , href = $this.attr('href')
+                , option = $target.data('tab') ? 'show' : $.extend({ remote: !/#/.test(href) && href }, $target.data(), $this.data())
+            e.preventDefault()
+            $(this).tab( option )
+        })
+    }
 
-  $.fn.tab.noConflict = function () {
-    $.fn.tab = old
-    return this
-  }
-
-
- /* TAB DATA-API
-  * ============ */
-  Tab.autoinit = function(){
-    $(document).on('click.tab.data-api', '[data-toggle="tab"], [data-toggle="pill"]', function (e) {
-      e.preventDefault()
-      $(this).tab('show')
-    })
-  }
-
-  module.exports = Tab
+    module.exports = Tab
 });
