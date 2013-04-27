@@ -1,0 +1,22 @@
+{
+    "name": "popover",
+    "version": "1.0.0",
+    "root": "seajq",
+    "description": "",
+    "homepage": "",
+    "author": "",
+    "repository": {
+        "type": "git",
+        "url": ""
+    },
+    "sources": ["http://dev.vicbang.com/modules.spmjs.org"],
+    "bugs": {
+        "url": ""
+    },
+    "license": "MIT",
+    "dependencies": {},
+    "tests": ["popover"],
+    "output": {
+        "popover.js": "."
+    }
+}

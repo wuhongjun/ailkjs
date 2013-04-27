@@ -1,0 +1,22 @@
+{
+    "name": "alert",
+    "version": "1.0.0",
+    "root": "seajq",
+    "description": "",
+    "homepage": "",
+    "author": "",
+    "repository": {
+        "type": "git",
+        "url": ""
+    },
+    "bugs": {
+        "url": ""
+    },
+    "license": "MIT",
+    "dependencies": {
+    },
+    "tests": ["alert"],
+    "output": {
+        "alert.js": "."
+    }
+}

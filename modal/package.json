@@ -1,0 +1,23 @@
+{
+    "name": "modal",
+    "version": "1.0.0",
+    "root": "seajq",
+    "description": "",
+    "homepage": "",
+    "author": "",
+    "repository": {
+        "type": "git",
+        "url": ""
+    },
+    "bugs": {
+        "url": ""
+    },
+    "license": "MIT",
+    "dependencies": {
+        "$": "gallery/jquery/1.8.3/jquery"
+    },
+    "tests": ["modal"],
+    "output": {
+        "modal.js": "."
+    }
+}
