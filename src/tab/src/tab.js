@@ -5,7 +5,7 @@ define(function (require, exports, module) {
     var Tab = function (element, options) {
         this.options = options
         this.element = $(element)
-        this.options.remote && this.element.attr('data-target').load(this.options.remote)
+        this.options.remote && this.reload()
     }
 
     Tab.prototype = {
@@ -58,7 +58,7 @@ define(function (require, exports, module) {
                     .find('> .ailk-dropdown-menu > .ailk-active')
                     .removeClass('ailk-active')
 
-                element.addClass('active')
+                element.addClass('ailk-active')
 
                 if (transition) {
                     element[0].offsetWidth // reflow for transition
@@ -80,12 +80,19 @@ define(function (require, exports, module) {
 
             $active.removeClass('ailk-open')
         },
-        reload: function( remote ){
+        reload: function(){
+	    if(!this.options.remote) return
             var $this = this.element
+	      , $target = $($this.attr('data-target'))
+	      , previous = $this.closet('ul').find('.active:last a')[0]
             $this.trigger($.Event('reloading'))
-            this.target.empty().load( remote || this.options.remote, function(){
-                $this.trigger($.Event('loaded'))
-            });
+            $target.empty().load( this.options.remote, function(){
+                $this.trigger($.Event({
+                    type : 'loaded',
+                    relatedTarget: previous
+                }))
+            })
+	    this.show()
         }
     }
 
