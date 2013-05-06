@@ -84,7 +84,7 @@ define(function (require, exports, module) {
 	    if(!this.options.remote) return
             var $this = this.element
 	      , $target = $($this.attr('data-target'))
-	      , previous = $this.closet('ul').find('.active:last a')[0]
+	      , previous = $this.closest('ul').find('.active:last a')[0]
             $this.trigger($.Event('reloading'))
             $target.empty().load( this.options.remote, function(){
                 $this.trigger($.Event({

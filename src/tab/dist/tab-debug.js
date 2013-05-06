@@ -52,7 +52,7 @@ define("seajq/tab/1.0.0/tab-debug", [ "gallery/jquery/1.8.3/jquery-debug" ], fun
         },
         reload: function() {
             if (!this.options.remote) return;
-            var $this = this.element, $target = $($this.attr("data-target")), previous = $this.closet("ul").find(".active:last a")[0];
+            var $this = this.element, $target = $($this.attr("data-target")), previous = $this.closest("ul").find(".active:last a")[0];
             $this.trigger($.Event("reloading"));
             $target.empty().load(this.options.remote, function() {
                 $this.trigger($.Event({
